@@ -1,36 +1,36 @@
 import string
 import os
+import commands
 
 class disasembler():
     def __init__(self):
         self.commandsMask: list[str] = []
         self.commands: list[str] = []
         self.commandWords: list[str] = []
-
         self.fill_commands_lists()
 
     def fill_commands_lists(self):
-        file = open('data/asmCode.txt', 'r')
-        for line in file:
+        file = commands.commands
+        for line in file.split("\n"):
+            line = line.strip()
             line: str = line.strip()
             self.commandsMask.append(line[0:line.find('-')])
             self.commands.append(line[line.find('-') + 1:len(line)])
-        file.close()
 
-    def make_asm_code(self, input_hex) -> str:
-        os.remove("data/output.txt")
-        self.fill_command_words(input_hex)
+    def make_asm_code(self, input_hex, only_data: bool) -> str:
+        self.fill_command_words(input_hex, only_data)
         return self.make_out()
         
 
-    def fill_command_words(self, input_hex: str):
+    def fill_command_words(self, input_hex: str, only_data: bool) -> None:
         self.commandWords = []
         for line in input_hex.split("\n"):
             currentLine = ""
             for char in line:
                 if char in string.hexdigits:
                     currentLine += char
-            currentLine = currentLine[8:-2]
+            if not only_data:
+                currentLine = currentLine[8:-2]
             if currentLine != '':
                 for i in range(len(currentLine) // 4): #invert bytes
                     self.commandWords.append(currentLine[i * 4 + 2:i * 4 + 4] 
@@ -71,16 +71,16 @@ class disasembler():
         command_str = self.commands[data['cmd']]
         if 'r' in data:
             r = data['r']
-            if len(r) == 4:
+            if len(r) < 5:
                 r = '1' + r
             r = f"r{int(r, 2)}" # r + int
             command_str = command_str.replace('Rr', r)
         if 'd' in data:
             d = data['d']
-            if len(d) == 4:
+            if len(d) == 4 or len(d) == 3:
                 d = '1' + d
             if len(d) == 10:
-                d = d[0:5]
+                d = d[6:10]
             d = f"r{int(d, 2)}" # r + int
             command_str = command_str.replace('Rd', d)
         if 'K' in data:
@@ -88,8 +88,10 @@ class disasembler():
             K = "0x" + f"{K:02x}" #some hex number constant
             command_str = command_str.replace('K', K)
         if 'k' in data:
-            if data['cmd'] in [0, 1, 2, 3]:
-                k = "0x" + f"{int(data['k'] + '0', 2):02x}" #words to address (*2)
+            if data['cmd'] in (0, 3):  # JMP, CALL
+                k = str(int(data['k'], 2) * 2)
+            elif data['cmd'] in (1, 2):  # LDS, STS
+                k = str(int(data['k'], 2))
             else:
                 if data['k'][0] == '1': # if first digit is 1 then its negative jump
                     inverted = ''
@@ -120,11 +122,11 @@ class disasembler():
     def make_out(self) -> str:
         words = self.commandWords
         wordId = 0
-        file = open('data/output.txt', 'w') #open file to duplicate result
+        file = ""
         while wordId < len(words):
             res = self.check_word(words[wordId])
             currComandId = res['cmd']
-            currLine = f"0x{wordId*2:02x}: " #make address in hex format for output
+            currLine = f"0x{wordId*2:04x}: " #make address in hex format for output
             currLine += f"{words[wordId][2:4]} {words[wordId][0:2]} " #invert to little-endian for output
             if currComandId == -1:
                 currLine += "command not found\n"
@@ -138,8 +140,8 @@ class disasembler():
                     currLine += f"{words[wordId + 1][2:4]} {words[wordId + 1][0:2]} " #add second word to output
                     wordId += 2 # skip 1 word, because its part of current command 
                 else:
+                    currLine += "      "
                     wordId += 1
-                currLine += f"{self.makeCommand(res)}\n" # make a normal asm command for output
-            file.write(currLine) # add to file
-        with open("data/output.txt", "r") as file: # read file and return to app
-            return file.read()
+                currLine += f"   {self.makeCommand(res)}\n" # make a normal asm command for output
+            file += currLine # add to file
+        return file

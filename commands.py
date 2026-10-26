@@ -1,11 +1,7 @@
-1001010kkkkk110kkkkkkkkkkkkkkkkk-jmp k
+commands = """1001010kkkkk110kkkkkkkkkkkkkkkkk-jmp k
 1001000ddddd0000kkkkkkkkkkkkkkkk-lds Rd,k
 1001001rrrrr0000kkkkkkkkkkkkkkkk-sts k,Rr
 1001010kkkkk111kkkkkkkkkkkkkkkkk-call k
-000011dddddddddd-lsl Rd
-000111dddddddddd-rol Rd
-001000dddddddddd-tst Rd
-001001dddddddddd-clr Rd
 0110KKKKddddKKKK-sbr Rd,K
 0111KKKKddddKKKK-cbr Rd,K
 000011rdddddrrrr-add Rd,Rr
@@ -134,4 +130,4 @@
 0000000000000000-nop
 1001010110001000-sleep
 1001010110101000-wdr
-1001010100000000-break
+1001010100000000-break"""
