@@ -110,7 +110,7 @@ class disasembler():
             command_str = command_str.replace('P', P)
         if 'b' in data:
             b = int(data['b'], 2) #bit (0-7) in register
-            command_str = command_str.replace('b', str(b))
+            command_str = command_str[0:command_str.find(' ')] + command_str[command_str.find(' '):].replace('b', str(b))
         if 'q' in data:
             q = int(data['q'], 2)
             command_str = command_str.replace('q', str(q))
