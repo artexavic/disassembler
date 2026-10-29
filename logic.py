@@ -72,16 +72,16 @@ class disasembler():
         if 'r' in data:
             r = data['r']
             if len(r) < 5:
-                r = '1' + r
-            r = f"r{int(r, 2)}" # r + int
+                r = f"r{int(r, 2)+16}"
+            else:
+                r = f"r{int(r, 2)}"  # r + int
             command_str = command_str.replace('Rr', r)
         if 'd' in data:
             d = data['d']
-            if len(d) == 4 or len(d) == 3:
-                d = '1' + d
-            if len(d) == 10:
-                d = d[6:10]
-            d = f"r{int(d, 2)}" # r + int
+            if len(d) < 5:
+                d = f"r{int(d, 2)+16}"
+            else:
+                d = f"r{int(d, 2)}" # r + int
             command_str = command_str.replace('Rd', d)
         if 'K' in data:
             K = int(data['K'], 2)
@@ -89,9 +89,9 @@ class disasembler():
             command_str = command_str.replace('K', K)
         if 'k' in data:
             if data['cmd'] in (0, 3):  # JMP, CALL
-                k = str(int(data['k'], 2) * 2)
+                k = "0x" + f"{int(data['k'], 2) * 2:02x}"
             elif data['cmd'] in (1, 2):  # LDS, STS
-                k = str(int(data['k'], 2))
+                k = "0x" + f"{int(data['k'], 2):02x}"
             else:
                 if data['k'][0] == '1': # if first digit is 1 then its negative jump
                     inverted = ''
@@ -104,13 +104,13 @@ class disasembler():
                 else:
                     k = f"+{int(data['k'] + '0', 2)}"
             command_str = command_str.replace('k', k)
+        if 'b' in data:
+            b = int(data['b'], 2) #bit (0-7) in register
+            command_str = command_str[0:command_str.find(' ')] + command_str[command_str.find(' '):].replace('b', str(b))
         if 'P' in data:
             P = int(data['P'], 2)
             P = "0x" + f"{P:02x}" #hex number port
             command_str = command_str.replace('P', P)
-        if 'b' in data:
-            b = int(data['b'], 2) #bit (0-7) in register
-            command_str = command_str[0:command_str.find(' ')] + command_str[command_str.find(' '):].replace('b', str(b))
         if 'q' in data:
             q = int(data['q'], 2)
             command_str = command_str.replace('q', str(q))

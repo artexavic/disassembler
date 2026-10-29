@@ -22,12 +22,12 @@ commands = """1001010kkkkk110kkkkkkkkkkkkkkkkk-jmp k
 1001010ddddd0011-inc Rd
 1001010ddddd1010-dec Rd
 11101111dddd1111-ser Rd
-00000011ddddrrrr-mul Rd,Rr
+100111rdddddrrrr-mul Rd,Rr
 00000010ddddrrrr-muls Rd,Rr
 000000110ddd0rrr-mulsu Rd,Rr
-000000111ddddrrr-fmul Rd,Rr
-000000111dddd111-fmuls Rd,Rr
-000000111ddd0rrr-fmulsu Rd,Rr
+000000110ddd1rrr-fmul Rd,Rr
+000000111ddd0rrr-fmuls Rd,Rr
+000000111ddd1rrr-fmulsu Rd,Rr
 1100kkkkkkkkkkkk-rjmp k
 1001010000001001-ijmp
 1001010000011001-eijmp
@@ -130,4 +130,4 @@ commands = """1001010kkkkk110kkkkkkkkkkkkkkkkk-jmp k
 0000000000000000-nop
 1001010110001000-sleep
 1001010110101000-wdr
-1001010100000000-break"""
+1001010110011000-break"""
